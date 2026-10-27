@@ -1,0 +1,40 @@
+---
+import type { Exhibition } from '../types';
+import { venueFor } from '../config/site';
+
+interface Props { exhibition: Exhibition }
+const { exhibition: e } = Astro.props;
+const v = venueFor(e.venue);
+const dir = e.mapUrl
+  ?? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(e.venue || v.name)}`;
+---
+<section class="venue" aria-labelledby="venue-h">
+  <div>
+    <h3 id="venue-h"><span lang="en">Venue</span><span class="jp">会場とアクセス</span></h3>
+    <dl>
+      <div><dt>名称</dt><dd>{e.venue || v.name}</dd></div>
+      <div>
+        <dt>住所</dt>
+        <dd><span class="sr-only">郵便番号</span>〒{v.postalCode}<br />{e.address || v.address}</dd>
+      </div>
+      <div>
+        <dt>最寄駅</dt>
+        <dd>{v.access.map((a, i) => <>{i > 0 && <br />}{a}</>)}</dd>
+      </div>
+      <div><dt>開場</dt><dd>{v.hours}</dd></div>
+      <div><dt>料金</dt><dd>{v.fee}</dd></div>
+    </dl>
+  </div>
+  <div>
+    <div class="acts">
+      <a class="act" href={`/events/${e.slug}.ics`} download={`${e.slug}.ics`}>
+        カレンダーに追加<span class="sr-only">（iCalendar形式の.icsファイルをダウンロード）</span>
+      </a>
+      <a class="act" href={dir}>
+        Googleマップで経路を見る<span class="sr-only">（外部サイトが開きます）</span>
+        <span class="arw" aria-hidden="true"></span>
+      </a>
+    </div>
+    {v.note && <p class="hint">{v.note}</p>}
+  </div>
+</section>

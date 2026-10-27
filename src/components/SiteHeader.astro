@@ -1,0 +1,22 @@
+---
+import { site } from '../config/site';
+---
+<header class="bar">
+  <div class="shell bar-in">
+    <span class="left" lang="en">Tokyo Well City</span>
+    <a class="m" href="/" aria-label={`${site.nameEn} トップページ`}>
+      <span lang="en">{site.nameEn}</span><span class="arw" aria-hidden="true"></span>
+    </a>
+    <nav class="tools" aria-label="サイト内メニュー">
+      <a class="hnav" href="/exhibitions/">展示</a>
+      <a class="hnav" href="/#reading">読み物</a>
+      <a class="hnav" href="/#about">About</a>
+    </nav>
+  </div>
+</header>
+<style>
+  .hnav{font-size:0.75rem;letter-spacing:.02em;color:var(--k);text-decoration:none;
+        min-height:24px;display:inline-flex;align-items:center;padding:0 4px}
+  .hnav:hover{text-decoration:underline;text-underline-offset:3px}
+  @media(max-width:520px){.hnav{font-size:0.6875rem;padding:0 2px}}
+</style>

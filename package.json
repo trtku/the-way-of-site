@@ -1,0 +1,18 @@
+{
+  "name": "twayof-site",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "sync": "node scripts/fetch-content.mjs",
+    "sync:images": "node scripts/fetch-images.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "ci": "npm run sync && npm run sync:images && npm run build"
+  },
+  "dependencies": {
+    "astro": "^5.14.1",
+    "zod": "^3.24.1"
+  }
+}

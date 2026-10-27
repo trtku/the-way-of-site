@@ -1,0 +1,27 @@
+---
+import Pic from './Pic.astro';
+import { fmtDate } from '../lib/content';
+
+interface Props {
+  href: string;
+  title: string;
+  image?: string | null;
+  alt?: string;
+  date?: string | null;
+  chip?: string;
+  chipLang?: string;
+  tone?: '' | 'd' | 'dd';
+  external?: boolean;
+  lang?: string;
+}
+const { href, title, image, alt, date, chip, chipLang, tone = '', external = false, lang } = Astro.props;
+const dateText = date && date.length === 4 ? date : fmtDate(date, true);
+---
+<a class="card" href={href}>
+  <Pic name={image} alt={alt ?? `${title} の写真`} tone={tone} cap="Photo" />
+  <div class="mt">
+    {date && <span class="dt"><time datetime={date}>{dateText}</time></span>}
+    {chip && <span class="chip" lang={chipLang}>{chip}</span>}
+  </div>
+  <h3 lang={lang}>{title}{external && <span class="sr-only">（外部サイトが開きます）</span>}</h3>
+</a>

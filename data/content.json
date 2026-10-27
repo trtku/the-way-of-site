@@ -1,0 +1,241 @@
+{
+  "fetchedAt": "2026-10-27T02:19:41.143Z",
+  "issues": [
+    {
+      "yearMonth": "2026-10",
+      "title": "都市の隙間をあるく",
+      "recommends": [
+        "朝いちばんの緑道で「野良展示1.0」を歩く。",
+        "作品マップを片手に、9作品を全部さがす。",
+        "ホトリア広場のベンチで、なにもしない30分。",
+        "SPレコードのプチ・コンサートを予約する。",
+        "雨の日をねらって、もう一度展示を見に行く。",
+        "取り組みレポート #01 を読む。"
+      ],
+      "featureSlug": "nora-1-0",
+      "photos": [
+        "rail-01.jpg",
+        "rail-02.jpg",
+        "rail-03.jpg",
+        "rail-04.jpg"
+      ]
+    },
+    {
+      "yearMonth": "2026-09",
+      "title": "秋のはじまり",
+      "recommends": [
+        "丸の内の軒先をのぞいて歩く。",
+        "取り組みレポート #01 を読む。"
+      ],
+      "featureSlug": null,
+      "photos": []
+    },
+    {
+      "yearMonth": "2026-08",
+      "title": "夏の記録",
+      "recommends": [
+        "日陰をえらんで歩く。"
+      ],
+      "featureSlug": null,
+      "photos": []
+    }
+  ],
+  "exhibitions": [
+    {
+      "slug": "nora-1-0",
+      "title": "野良展示 1.0",
+      "subtitle": "都会の隙間にひそむ感性",
+      "venue": "大手町エコミュージアム、大手町ゲートビル外構",
+      "address": "東京都千代田区大手町",
+      "start": "2026-10-14",
+      "end": "2026-11-14",
+      "status": "ongoing",
+      "cover": "nora-cover.jpg",
+      "body": "展示室ではなく都市の隙間に置かれる屋外展示。大手町エコミュージアムと大手町ゲートビル外構に、9作品が点在します。通りすがりに出会うことを前提にした展示形式です。入場無料。",
+      "worksCount": 9,
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=%E5%A4%A7%E6%89%8B%E7%94%BA%E3%82%A8%E3%82%B3%E3%83%9F%E3%83%A5%E3%83%BC%E3%82%B8%E3%82%A2%E3%83%A0"
+    },
+    {
+      "slug": "kokochiyoi-2026",
+      "title": "世界の心地よい生き方、働き方展",
+      "subtitle": "東京藝大「I LOVE YOU」プロジェクト",
+      "venue": "大手町エコミュージアム",
+      "address": "東京都千代田区大手町",
+      "start": "2026-10-20",
+      "end": "2026-10-30",
+      "status": "ongoing",
+      "cover": "kokochiyoi-cover.jpg",
+      "body": "世界各地の暮らしの型を持ち寄る展示。",
+      "worksCount": null,
+      "mapUrl": null
+    },
+    {
+      "slug": "kokochiyoi-2025",
+      "title": "世界の心地よい生き方、働き方展 2025",
+      "subtitle": "I LOVE YOU プロジェクト",
+      "venue": "東京藝術大学",
+      "address": "東京都台東区",
+      "start": "2025-09-01",
+      "end": "2025-10-15",
+      "status": "archive",
+      "cover": "archive-01.jpg",
+      "body": "世界各地の暮らしの型を持ち寄る展示。",
+      "worksCount": null,
+      "mapUrl": null
+    },
+    {
+      "slug": "hamidashi-2025",
+      "title": "都市のはみ出しものたち",
+      "subtitle": "公開ミーティングシリーズ",
+      "venue": "大手町",
+      "address": "東京都千代田区大手町",
+      "start": "2025-05-10",
+      "end": "2025-12-20",
+      "status": "archive",
+      "cover": "archive-02.jpg",
+      "body": "都市の余白をめぐる連続討議。",
+      "worksCount": null,
+      "mapUrl": null
+    },
+    {
+      "slug": "hotoria-research",
+      "title": "ホトリア広場 リサーチ",
+      "subtitle": "緑の帯を読み直す",
+      "venue": "ホトリア広場",
+      "address": "東京都千代田区大手町",
+      "start": "2024-04-01",
+      "end": "2024-11-30",
+      "status": "archive",
+      "cover": "archive-03.jpg",
+      "body": "皇居と大手町をつなぐ緑の帯を、生物多様性と人の動線から読み直す。",
+      "worksCount": null,
+      "mapUrl": null
+    },
+    {
+      "slug": "emma-sander-2024",
+      "title": "Emma Jurczynski × Sander Wassink",
+      "subtitle": "LECTURE + TALK SESSION",
+      "venue": "東京藝術大学",
+      "address": "東京都台東区",
+      "start": "2024-10-05",
+      "end": "2024-10-05",
+      "status": "archive",
+      "cover": "archive-04.jpg",
+      "body": "素材と都市の関係を話すレクチャー。",
+      "worksCount": null,
+      "mapUrl": null
+    }
+  ],
+  "reading": [
+    {
+      "title": "ふと野良猫に会うように、展示を見つけてもらえたら",
+      "url": "https://note.com/the_way_of",
+      "source": "note",
+      "date": "2026-10-19",
+      "thumb": "read-01.jpg",
+      "tag": "野良展示"
+    },
+    {
+      "title": "見慣れた都市を見つめ直す『野良展示』のつくり方",
+      "url": "https://note.com/the_way_of",
+      "source": "note",
+      "date": "2026-10-04",
+      "thumb": "read-02.jpg",
+      "tag": "野良展示"
+    },
+    {
+      "title": "今、社会に求められている「アートと社会を結ぶコーディネーター」とは？",
+      "url": "https://note.com/the_way_of",
+      "source": "note",
+      "date": "2026-09-22",
+      "thumb": "read-03.jpg",
+      "tag": "レポート"
+    },
+    {
+      "title": "《展示情報》世界の心地よい生き方、働き方展",
+      "url": "https://note.com/the_way_of",
+      "source": "note",
+      "date": "2026-09-09",
+      "thumb": "read-04.jpg",
+      "tag": "展示情報"
+    },
+    {
+      "title": "《展示情報》『野良展示1.0』都会の隙間にひそむ感性",
+      "url": "https://note.com/the_way_of",
+      "source": "note",
+      "date": "2026-08-28",
+      "thumb": "read-05.jpg",
+      "tag": "展示情報"
+    }
+  ],
+  "notes": [
+    {
+      "issue": "2026-10",
+      "order": 1,
+      "author": "石井 みなみ",
+      "title": "朝の緑道に落ちているもの",
+      "date": "2026-10-04",
+      "url": ""
+    },
+    {
+      "issue": "2026-10",
+      "order": 2,
+      "author": "高田 亮",
+      "title": "ベンチの座り方を数える",
+      "date": "2026-10-08",
+      "url": ""
+    },
+    {
+      "issue": "2026-10",
+      "order": 3,
+      "author": "Sander Wassink",
+      "title": "Materials found on the way",
+      "date": "2026-10-13",
+      "url": ""
+    },
+    {
+      "issue": "2026-10",
+      "order": 4,
+      "author": "村上 千尋",
+      "title": "展示を留守番する日",
+      "date": "2026-10-19",
+      "url": ""
+    },
+    {
+      "issue": "2026-10",
+      "order": 5,
+      "author": "吉川 遥",
+      "title": "まちの音を録る",
+      "date": "2026-10-24",
+      "url": ""
+    },
+    {
+      "issue": "2026-10",
+      "order": 6,
+      "author": "佐々木 巡",
+      "title": "雨の日の来場者",
+      "date": "2026-10-26",
+      "url": ""
+    }
+  ],
+  "news": [
+    {
+      "date": "2026-10-14",
+      "title": "『野良展示1.0』が始まりました",
+      "url": "",
+      "body": "大手町エコミュージアムと大手町ゲートビル外構で、9作品の屋外展示が始まりました。"
+    },
+    {
+      "date": "2026-07-01",
+      "title": "《the way of →》ロゴを公開しました",
+      "url": "",
+      "body": ""
+    },
+    {
+      "date": "2026-06-10",
+      "title": "SNSを開設しました",
+      "url": "",
+      "body": ""
+    }
+  ]
+}

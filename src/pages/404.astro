@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../config/site';
+---
+<Base title={`ページが見つかりません｜${site.name}`} description="お探しのページは見つかりませんでした。">
+  <main class="shell" id="main">
+    <div class="ptitle">
+      <p class="st" lang="en">404</p>
+      <h1>ページが見つかりません</h1>
+      <p class="sub">URLが変わったか、公開が終了した可能性があります。</p>
+    </div>
+    <p class="hint" style="padding-bottom:50px">
+      <a href="/">トップページ</a>／<a href="/exhibitions/">展示一覧</a>
+    </p>
+  </main>
+</Base>

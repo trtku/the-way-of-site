@@ -1,0 +1,26 @@
+---
+interface Props { items: string[] }
+const { items } = Astro.props;
+---
+<div class="ticker" role="region" aria-label="最新の見出し">
+  <button type="button" class="tick-pause" id="tickBtn" aria-pressed="false"
+          aria-label="見出しの自動スクロールを一時停止">❙❙</button>
+  <div class="tick-track" id="tickTrack">
+    {items.map((t) => <span>{t}</span>)}
+    {items.map((t) => <span aria-hidden="true">{t}</span>)}
+  </div>
+</div>
+
+<script>
+  /* 自動で動くものには止める手段を用意する（WCAG 2.2.2） */
+  const btn = document.getElementById('tickBtn');
+  const track = document.getElementById('tickTrack');
+  if (btn && track) {
+    btn.addEventListener('click', () => {
+      const paused = track.classList.toggle('paused');
+      btn.setAttribute('aria-pressed', String(paused));
+      btn.setAttribute('aria-label', paused ? '見出しの自動スクロールを再開' : '見出しの自動スクロールを一時停止');
+      btn.textContent = paused ? '▶' : '❙❙';
+    });
+  }
+</script>

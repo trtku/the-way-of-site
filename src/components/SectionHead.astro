@@ -1,0 +1,9 @@
+---
+interface Props { id: string; en: string; jp: string; nav?: string }
+const { id, en, jp, nav } = Astro.props;
+---
+<div class="sh">
+  <h2 id={id}><span lang="en">{en}</span><span class="jp">{jp}</span></h2>
+  <span class="rule"></span>
+  {nav && <span class="nav">{nav}</span>}
+</div>

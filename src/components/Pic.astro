@@ -1,0 +1,33 @@
+---
+import { Image } from 'astro:assets';
+import { pic } from '../lib/images';
+
+interface Props {
+  /** 画像のファイル名（シートに書かれている値そのまま） */
+  name?: string | null;
+  /** 画像の内容を説明する文。画像が無いときはプレースホルダーの説明に使う。 */
+  alt: string;
+  /** well d / well dd などの濃淡 */
+  tone?: '' | 'd' | 'dd';
+  /** プレースホルダー時に左下に出る小さなラベル */
+  cap?: string;
+  class?: string;
+  widths?: number[];
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+}
+const {
+  name, alt, tone = '', cap = 'Photo', class: cls = '',
+  widths = [320, 640, 960], sizes = '(max-width:700px) 92vw, 460px',
+  loading = 'lazy'
+} = Astro.props;
+
+const img = await pic(name);
+---
+<div
+  class:list={['well', tone, cls, img && 'has-img']}
+  data-cap={cap}
+  {...img ? {} : { role: 'img', 'aria-label': alt }}
+>
+  {img && <Image src={img} alt={alt} widths={widths} sizes={sizes} loading={loading} />}
+</div>

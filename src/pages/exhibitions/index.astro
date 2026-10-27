@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import Card from '../../components/Card.astro';
+import { content } from '../../lib/content';
+import { site } from '../../config/site';
+
+const order = { ongoing: 0, upcoming: 1, archive: 2 } as const;
+const all = [...content.exhibitions].sort(
+  (a, b) => order[a.status] - order[b.status] || (b.start ?? '').localeCompare(a.start ?? '')
+);
+const label = { ongoing: '開催中', upcoming: '開催予定', archive: 'Archive' } as const;
+---
+<Base title={`展示一覧｜${site.name}`} description="これまでと現在の展示・プロジェクトの一覧。">
+  <div class="shell">
+    <nav class="crumb" aria-label="現在の位置">
+      <ol><li><a href="/">ホーム</a></li><li aria-current="page">展示</li></ol>
+    </nav>
+  </div>
+  <main class="shell" id="main">
+    <div class="ptitle">
+      <p class="st" lang="en">Exhibitions</p>
+      <h1>展示・プロジェクト</h1>
+      <p class="sub">{`全${all.length}件`}</p>
+    </div>
+    <div class="grid">
+      {all.map((e) => (
+        <Card href={`/exhibitions/${e.slug}/`} title={e.title} image={e.cover}
+              alt={`『${e.title}』の会場風景`} date={e.start?.slice(0, 4)}
+              chip={label[e.status]} tone={e.status === 'archive' ? 'dd' : 'd'} />
+      ))}
+    </div>
+  </main>
+</Base>

@@ -1,0 +1,88 @@
+---
+import Base from '../../layouts/Base.astro';
+import Pic from '../../components/Pic.astro';
+import VenueBlock from '../../components/VenueBlock.astro';
+import Card from '../../components/Card.astro';
+import Lane from '../../components/Lane.astro';
+import { content, fmtDate } from '../../lib/content';
+import { exhibitionGraph } from '../../lib/jsonld';
+import { site } from '../../config/site';
+
+export function getStaticPaths() {
+  return content.exhibitions.map((e) => ({ params: { slug: e.slug }, props: { e } }));
+}
+const { e } = Astro.props;
+const base = (Astro.site ?? new URL('https://example.org')).toString();
+const jsonld = exhibitionGraph(base, e);
+const statusJp = { ongoing: '開催中', upcoming: '開催予定', archive: '終了' }[e.status];
+const related = content.exhibitions.filter((x) => x.slug !== e.slug).slice(0, 4);
+---
+<Base title={`${e.title}｜${site.name}`} description={e.body || e.subtitle} jsonld={jsonld}>
+  <div class="shell">
+    <nav class="crumb" aria-label="現在の位置">
+      <ol>
+        <li><a href="/">ホーム</a></li>
+        <li><a href="/exhibitions/">展示</a></li>
+        <li aria-current="page">{e.title}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <main class="shell" id="main">
+    <div class="ptitle">
+      <p class="st" lang="en">{e.status === 'archive' ? 'Archive' : e.status === 'ongoing' ? 'Ongoing' : 'Upcoming'}</p>
+      <h1>{e.title}</h1>
+      {e.subtitle && <p class="sub">{e.subtitle}</p>}
+    </div>
+
+    <Pic name={e.cover} alt={`『${e.title}』の会場風景`} tone="d" cap="Photo"
+         widths={[640, 1280, 1920]} sizes="100vw" loading="eager" class="hero-pic" />
+
+    <section class="venue" aria-labelledby="facts-h" style="margin-top:22px">
+      <div>
+        <h3 id="facts-h"><span lang="en">Facts</span><span class="jp">展示の基本情報</span></h3>
+        <dl>
+          <div><dt>状態</dt><dd>{statusJp}</dd></div>
+          <div>
+            <dt>会期</dt>
+            <dd>
+              {e.start && <time datetime={e.start}>{fmtDate(e.start, true)}</time>}
+              {e.end && <> — <time datetime={e.end}>{fmtDate(e.end, true)}</time></>}
+            </dd>
+          </div>
+          <div><dt>会場</dt><dd>{e.venue}</dd></div>
+          {e.worksCount && <div><dt>作品数</dt><dd>{e.worksCount}点</dd></div>}
+          <div><dt>主催</dt><dd>{site.team}</dd></div>
+        </dl>
+      </div>
+      <div>
+        <div class="prose">
+          {e.body.split(/\n+/).map((p) => <p>{p}</p>)}
+        </div>
+      </div>
+    </section>
+
+    {e.status !== 'archive' && <VenueBlock exhibition={e} />}
+
+    {related.length > 0 && (
+      <section aria-labelledby="rel-h" style="margin-top:34px">
+        <div class="sh">
+          <h2 id="rel-h"><span lang="en">More</span><span class="jp">ほかの展示</span></h2>
+          <span class="rule"></span>
+        </div>
+        <Lane label="ほかの展示">
+          {related.map((x) => (
+            <Card href={`/exhibitions/${x.slug}/`} title={x.title} image={x.cover}
+                  alt={`『${x.title}』の会場風景`} date={x.start?.slice(0, 4)}
+                  chip={{ ongoing: '開催中', upcoming: '開催予定', archive: 'Archive' }[x.status]}
+                  tone="dd" />
+          ))}
+        </Lane>
+      </section>
+    )}
+  </main>
+</Base>
+<style>
+  .hero-pic{aspect-ratio:16/9;border-radius:10px}
+  @media(max-width:480px){.hero-pic{aspect-ratio:4/3}}
+</style>

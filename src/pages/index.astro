@@ -1,0 +1,248 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Pic from '../components/Pic.astro';
+import Card from '../components/Card.astro';
+import Lane from '../components/Lane.astro';
+import SectionHead from '../components/SectionHead.astro';
+import SpanFigure from '../components/SpanFigure.astro';
+import VenueBlock from '../components/VenueBlock.astro';
+import {
+  content, ongoing, upcoming, archived, latestIssue, backNumbers,
+  notesForIssue, readingLatest, newsLatest, exhibitionBySlug, fmtDate
+} from '../lib/content';
+import { site, glossary } from '../config/site';
+import { graph } from '../lib/jsonld';
+
+const issue = latestIssue();
+const backs = backNumbers(5);
+const live = ongoing();
+const soon = upcoming();
+const feature = (issue?.featureSlug && exhibitionBySlug(issue.featureSlug)) || live[0] || null;
+const others = [...live, ...soon].filter((e) => e.slug !== feature?.slug);
+const notes = issue ? notesForIssue(issue.yearMonth) : [];
+const reading = readingLatest(5);
+const news = newsLatest(3);
+const arch = archived();
+
+const base = (Astro.site ?? new URL('https://example.org')).toString();
+const jsonld = graph(base, content, { issueYm: issue?.yearMonth ?? null });
+
+const headlines = [
+  ...live.map((e) => `『${e.title}』開催中 — ${e.venue.split('、')[0]}`),
+  ...reading.slice(0, 3).map((r) => r.title),
+  ...news.slice(0, 1).map((n) => n.title)
+];
+
+const lede = issue
+  ? `東京藝術大学と三菱地所が連携する《<ruby>芸術未来研究場<rt>げいじゅつみらいけんきゅうじょう</rt></ruby> tokyo-well-city》のプロジェクトを、月に一度まとめて記録・発信するメディアです。${issue.yearMonth.replace('-', '年').replace(/$/, '月号')}では、${feature ? `${feature.venue.split('、')[0]}で開催中の『${feature.title}』` : '今月の出来事'}を特集しています。`
+  : site.tagline;
+
+const title = issue
+  ? `${site.name}｜${issue.yearMonth.replace('-', '.')} ${issue.title}`
+  : site.name;
+---
+<Base title={title} description={site.tagline} jsonld={jsonld} headlines={headlines}>
+
+  <Hero issue={issue} backs={backs} lede={lede} />
+
+  <main class="shell" id="main">
+
+    <!-- 開催中の展示 -->
+    <section aria-labelledby="sec-now" id="now">
+      <SectionHead id="sec-now" en="Now" jp={`開催中の展示（${live.length}件）`} nav={`${live.length}件`} />
+
+      {feature ? (
+        <article class="feature">
+          <Pic name={feature.cover} alt={`『${feature.title}』の会場風景`} class="ph"
+               cap="Photo" widths={[480, 960, 1440]} sizes="(max-width:800px) 100vw, 46vw"
+               loading="eager" />
+          <div class="tx">
+            <p class="st" lang="en">{feature.status === 'ongoing' ? 'Ongoing' : 'Upcoming'}</p>
+            <h3>{feature.title}</h3>
+            {feature.subtitle && (
+              <p class="sub">
+                {feature.subtitle}{feature.worksCount ? `／屋外${feature.worksCount}作品` : ''}
+              </p>
+            )}
+            <dl>
+              <div><dt>会場</dt><dd>{feature.venue}</dd></div>
+              <div>
+                <dt>会期</dt>
+                <dd>
+                  <time datetime={feature.start}>{fmtDate(feature.start, true)}</time>
+                  {' — '}
+                  <time datetime={feature.end}>{fmtDate(feature.end)}</time>
+                </dd>
+              </div>
+              <div><dt>主催</dt><dd>{site.team}</dd></div>
+              <div><dt>入場</dt><dd>無料・会期中いつでも</dd></div>
+            </dl>
+            <div class="acts">
+              <a class="go" href={`/exhibitions/${feature.slug}/`}>
+                『{feature.title}』の詳細を見る<span class="arw" aria-hidden="true"></span>
+              </a>
+              {feature.mapUrl && (
+                <a class="go ghost" href={feature.mapUrl}>
+                  会場の地図を開く<span class="sr-only">（外部サイトが開きます）</span>
+                  <span class="arw" aria-hidden="true"></span>
+                </a>
+              )}
+            </div>
+          </div>
+        </article>
+      ) : (
+        <p class="hint">いま開催中の展示はありません。これまでの展示は<a href="/exhibitions/">展示一覧</a>から見られます。</p>
+      )}
+
+      {others.length > 0 && (
+        <div class="subs">
+          {others.map((e) => (
+            <a class="also" href={`/exhibitions/${e.slug}/`}>
+              <Pic name={e.cover} alt={`『${e.title}』の会場風景`} tone="dd" cap="Photo"
+                   widths={[200, 400]} sizes="120px" />
+              <div>
+                <span class="st">
+                  <span lang="en">{e.status === 'ongoing' ? 'Ongoing' : 'Upcoming'}</span>
+                  {e.status === 'ongoing' ? ' — 同時開催' : ' — 開催予定'}
+                </span>
+                <h4>{e.title}</h4>
+                <p>
+                  {e.subtitle && `${e.subtitle}／`}
+                  <time datetime={e.start}>{fmtDate(e.start)}</time>
+                  {' — '}
+                  <time datetime={e.end}>{fmtDate(e.end)}</time>
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {feature && <VenueBlock exhibition={feature} />}
+
+      <SpanFigure rows={[...live, ...soon]} />
+    </section>
+
+    <!-- 今月の書き手 -->
+    {notes.length > 0 && (
+    <section aria-labelledby="sec-notes" id="notes">
+      <SectionHead id="sec-notes" en="Notes" jp="今月の書き手"
+                   nav={`${issue!.yearMonth.replace('-', '.')} — ${notes.length}本`} />
+      <div class="weekly">
+        <ul>
+          {notes.map((n, i) => (
+            <li>
+              <span class="dy" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <span class="who">{n.author}<small>{n.title}</small></span>
+              {i === notes.length - 1
+                ? <span class="new">最新</span>
+                : <span class="dd"><time datetime={n.date}>{fmtDate(n.date)}</time></span>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+    )}
+
+    <!-- 読み物 -->
+    {reading.length > 0 && (
+    <section aria-labelledby="sec-reading" id="reading">
+      <SectionHead id="sec-reading" en="Reading" jp="読み物" nav={`${reading.length}本`} />
+      <Lane label="読み物の一覧">
+        {reading.map((r) => (
+          <Card href={r.url} title={r.title} image={r.thumb} alt={`「${r.title}」の記事サムネイル`}
+                date={r.date} chip={r.source} tone="d" external />
+        ))}
+      </Lane>
+    </section>
+    )}
+
+    <!-- 連載バナー -->
+    <section aria-labelledby="sec-report" id="report">
+      <a class="bigcard" href={site.links.note}>
+        <p class="num" aria-hidden="true">#01 —</p>
+        <h2 id="sec-report">私たちの取り組みレポート</h2>
+        <p>プロジェクトの進行を、現場の声のまま記録していく連載。何をどう決め、どこでつまずいたのかまで残します。</p>
+        <span class="go">
+          連載《私たちの取り組みレポート》を読む<span class="sr-only">（外部サイトが開きます）</span>
+          <span class="arw" aria-hidden="true"></span>
+        </span>
+      </a>
+    </section>
+
+    <!-- これまでの展示 -->
+    {arch.length > 0 && (
+    <section aria-labelledby="sec-archive" id="archive">
+      <SectionHead id="sec-archive" en="Archive" jp="これまでの展示・プロジェクト"
+                   nav={`${arch.length}件`} />
+      <Lane label="これまでの展示・プロジェクト">
+        {arch.map((e) => (
+          <Card href={`/exhibitions/${e.slug}/`} title={e.title} image={e.cover}
+                alt={`『${e.title}』の会場風景`} date={e.start?.slice(0, 4)}
+                chip={e.subtitle || 'Exhibition'} tone="dd" />
+        ))}
+      </Lane>
+      <p class="hint"><a href="/exhibitions/">展示一覧をすべて見る</a></p>
+    </section>
+    )}
+
+    <!-- お知らせ -->
+    {news.length > 0 && (
+    <section aria-labelledby="sec-news" id="news">
+      <div class="duo">
+        <div>
+          <SectionHead id="sec-news" en="News" jp="お知らせ" />
+          <div class="news">
+            <ul>
+              {news.map((n) => (
+                <li>
+                  <span class="d"><time datetime={n.date}>{fmtDate(n.date, true)}</time></span>
+                  <span class="t">{n.url ? <a href={n.url}>{n.title}</a> : n.title}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        {reading[0] && (
+        <div class="duo-side">
+          <article class="issue">
+            <div>
+              <p class="lbl"><time datetime={issue?.yearMonth}>{issue?.yearMonth.replace('-', '.')}</time> の一冊</p>
+              <h3>{reading[0].title}</h3>
+              <p>{reading[0].source} に公開。今月の読み物から。</p>
+            </div>
+            <Pic name={reading[0].thumb} alt={`「${reading[0].title}」の表紙`} tone="dd" cap="Cover"
+                 widths={[200, 400]} sizes="120px" />
+          </article>
+        </div>
+        )}
+      </div>
+    </section>
+    )}
+
+  </main>
+
+  <!-- About -->
+  <section class="about" aria-labelledby="sec-about" id="about">
+    <div class="shell about-in">
+      <div>
+        <h2 id="sec-about" lang="en">About</h2>
+        <p>《{site.name}》は、{site.university}と{site.partner}が連携する《{site.university}<ruby>芸術未来研究場<rt>げいじゅつみらいけんきゅうじょう</rt></ruby> tokyo-well-city》のプロジェクトを発信するメディアです。{site.cadence}。</p>
+        <p>都市の隙間に置かれた展示、通りすがりに出会う音、はみ出したものたちの居場所。ここでは、その進行中の記録を残していきます。</p>
+        <dl class="terms">
+          {glossary.map((g) => <><dt>{g.term}</dt><dd>{g.def}</dd></>)}
+        </dl>
+      </div>
+      <div>
+        <dl>
+          <div><dt>運営</dt><dd>{site.team}</dd></div>
+          <div><dt>連携</dt><dd>{site.partner}</dd></div>
+          <div><dt>領域</dt><dd>アート／都市／ウェルビーイング</dd></div>
+          <div><dt>拠点</dt><dd>大手町・丸の内・<ruby>有楽町<rt>ゆうらくちょう</rt></ruby>エリア</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+</Base>

@@ -1,0 +1,74 @@
+---
+import Pic from './Pic.astro';
+import { site } from '../config/site';
+import type { Issue } from '../types';
+
+interface Props {
+  issue: Issue | null;
+  backs: Issue[];
+  lede: string;
+}
+const { issue, backs, lede } = Astro.props;
+
+const ym = issue?.yearMonth ?? '';
+const [yy, mm] = ym ? ym.split('-') : ['', ''];
+const tones = ['d', '', 'dd', ''] as const;
+---
+<div class="shell stage">
+
+  {issue && issue.photos.length > 0 && (
+    <div class="rail" aria-hidden="true">
+      {issue.photos.slice(0, 4).map((p, i) => (
+        <Pic name={p} alt="" tone={tones[i % 4]} cap={String(i + 1).padStart(2, '0')} class="well"
+             widths={[200, 400]} sizes="150px" />
+      ))}
+    </div>
+  )}
+
+  <div>
+    <h1 class="wordmark" lang="en">
+      <span class="ln">THE</span>
+      <span class="ln">WAY</span>
+      <span class="ln">OF<span class="arw" aria-hidden="true"></span></span>
+    </h1>
+    <p class="tag" set:html={lede}></p>
+    {ym && (
+      <p class="issueline">
+        <span class="n"><time datetime={ym}>{`${yy}.${mm}`}</time></span>
+        <span class="dot" aria-hidden="true"></span>
+        <span class="s">{site.cadence}</span>
+      </p>
+    )}
+  </div>
+
+  {issue && (
+  <aside class="panel" aria-labelledby="issue-h">
+    <p class="mo">
+      <span class="yr">{yy}</span>
+      <span class="big"><time datetime={ym}>{mm}</time></span>
+      <span class="cad" lang="en">Monthly</span>
+    </p>
+    <h2 id="issue-h">今月おすすめの<br />過ごし方！</h2>
+    <ul class="todo">
+      {issue.recommends.map((r) => <li>{r}</li>)}
+    </ul>
+    <a class="btn" href={`/issues/${ym}/`}>{`今月（${yy}年${Number(mm)}月）の予定をすべて見る`}</a>
+    {backs.length > 0 && (
+      <nav class="backs" aria-label="バックナンバー">
+        <span class="lb" lang="en">Back numbers</span>
+        <div class="row">
+          {backs.map((b) => {
+            const [by, bm] = b.yearMonth.split('-');
+            return (
+              <a href={`/issues/${b.yearMonth}/`}>
+                {bm}<span class="sr-only">{`（${by}年${Number(bm)}月号）`}</span>
+              </a>
+            );
+          })}
+        </div>
+      </nav>
+    )}
+  </aside>
+  )}
+
+</div>

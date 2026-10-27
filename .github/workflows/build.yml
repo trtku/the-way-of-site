@@ -1,0 +1,63 @@
+name: サイトを更新する
+
+on:
+  # スプレッドシートの「サイトに反映」ボタンから呼ばれる
+  workflow_dispatch:
+  # 毎日1回、朝に自動で反映（日本時間 6:20）
+  schedule:
+    - cron: '20 21 * * *'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: スプレッドシートから本文を取得
+        env:
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+        run: npm run sync
+
+      - name: 入稿フォルダから画像を取得
+        env:
+          DRIVE_IMAGE_FOLDER_ID: ${{ secrets.DRIVE_IMAGE_FOLDER_ID }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: npm run sync:images
+
+      - name: ビルド
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: npm run build
+
+      # 入力に問題があるとここまで来ない（公開されない）ので、
+      # 失敗したときだけ、何行目が悪いのかを残しておく
+      - name: 入力エラーの記録
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: input-problems
+          path: data/problems.json
+          if-no-files-found: ignore
+
+      - name: Cloudflare Pages へ公開
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=the-way-of

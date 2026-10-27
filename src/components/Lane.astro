@@ -1,0 +1,7 @@
+---
+interface Props { label: string }
+const { label } = Astro.props;
+---
+<div class="lane" tabindex="0" role="group" aria-label={`${label}（横スクロール）`}>
+  <slot />
+</div>

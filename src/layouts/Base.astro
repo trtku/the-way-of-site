@@ -1,0 +1,46 @@
+---
+import '../styles/base.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Ticker from '../components/Ticker.astro';
+import { site } from '../config/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  jsonld?: unknown;
+  /** ティッカーに流す見出し。空なら出さない。 */
+  headlines?: string[];
+}
+const { title, description = site.tagline, jsonld, headlines = [] } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.org').toString();
+---
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content={site.name} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:locale" content="ja_JP" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900;9..40,1000&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" />
+  <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />
+  {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+</head>
+<body>
+  <a class="skip" href="#main">本文へスキップ</a>
+  {headlines.length > 0 && <Ticker items={headlines} />}
+  <SiteHeader />
+  <slot />
+  <SiteFooter />
+</body>
+</html>

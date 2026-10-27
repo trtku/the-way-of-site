@@ -1,0 +1,84 @@
+---
+import Base from '../../layouts/Base.astro';
+import Pic from '../../components/Pic.astro';
+import { content, notesForIssue, exhibitionBySlug, fmtDate } from '../../lib/content';
+import { site } from '../../config/site';
+
+export function getStaticPaths() {
+  return content.issues.map((i) => ({ params: { ym: i.yearMonth }, props: { issue: i } }));
+}
+const { issue } = Astro.props;
+const [yy, mm] = issue.yearMonth.split('-');
+const notes = notesForIssue(issue.yearMonth);
+const feature = issue.featureSlug ? exhibitionBySlug(issue.featureSlug) : null;
+---
+<Base title={`${yy}.${mm} ${issue.title}｜${site.name}`}
+      description={`${yy}年${Number(mm)}月号「${issue.title}」。今月おすすめの過ごし方と、今月の書き手。`}>
+  <div class="shell">
+    <nav class="crumb" aria-label="現在の位置">
+      <ol><li><a href="/">ホーム</a></li><li aria-current="page">{`${yy}年${Number(mm)}月号`}</li></ol>
+    </nav>
+  </div>
+  <main class="shell" id="main">
+    <div class="ptitle">
+      <p class="st" lang="en">{`Issue ${yy}.${mm}`}</p>
+      <h1>{issue.title}</h1>
+      <p class="sub">{site.cadence}</p>
+    </div>
+
+    <section aria-labelledby="todo-h">
+      <div class="sh">
+        <h2 id="todo-h"><span lang="en">To do</span><span class="jp">今月おすすめの過ごし方</span></h2>
+        <span class="rule"></span>
+      </div>
+      <div class="panel" style="max-width:none">
+        <ul class="todo">{issue.recommends.map((r) => <li>{r}</li>)}</ul>
+      </div>
+    </section>
+
+    {feature && (
+      <section aria-labelledby="feat-h" style="margin-top:30px">
+        <div class="sh">
+          <h2 id="feat-h"><span lang="en">Feature</span><span class="jp">特集</span></h2>
+          <span class="rule"></span>
+        </div>
+        <a class="also" href={`/exhibitions/${feature.slug}/`}>
+          <Pic name={feature.cover} alt={`『${feature.title}』の会場風景`} tone="dd" cap="Photo"
+               widths={[200, 400]} sizes="120px" />
+          <div>
+            <span class="st">{{ ongoing: '開催中', upcoming: '開催予定', archive: '終了' }[feature.status]}</span>
+            <h4>{feature.title}</h4>
+            <p>
+              <time datetime={feature.start}>{fmtDate(feature.start, true)}</time>
+              {' — '}
+              <time datetime={feature.end}>{fmtDate(feature.end)}</time>
+            </p>
+          </div>
+        </a>
+      </section>
+    )}
+
+    {notes.length > 0 && (
+      <section aria-labelledby="notes-h" style="margin-top:30px">
+        <div class="sh">
+          <h2 id="notes-h"><span lang="en">Notes</span><span class="jp">今月の書き手</span></h2>
+          <span class="rule"></span>
+          <span class="nav">{`${notes.length}本`}</span>
+        </div>
+        <div class="weekly">
+          <ul>
+            {notes.map((n, i) => (
+              <li>
+                <span class="dy" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <span class="who">{n.author}<small>{n.title}</small></span>
+                <span class="dd"><time datetime={n.date}>{fmtDate(n.date)}</time></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
+    <p class="hint" style="margin-top:28px"><a href="/">トップページへ戻る</a></p>
+  </main>
+</Base>

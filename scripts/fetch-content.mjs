@@ -13,19 +13,35 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
-
+ 
 import { csvUrl, parseCsv, toObjects, SHEETS } from './lib/csv.mjs';
 import * as S from './lib/schema.mjs';
-
+ 
 const SHEET_ID = process.env.SHEET_ID;
 const OUT = resolve(ROOT, 'data/content.json');
-
+ 
 const problems = [];
-
+ 
+/** 「公開する」以外が全部空なら、その行は無いものとして扱う。
+ *  スプレッドシートの空行には FALSE だけが入っていることがあるため、
+ *  published 列は空判定から除く。 */
+const isBlankRow = (row) =>
+  Object.entries(row)
+    .filter(([k]) => k !== 'published')
+    .every(([, v]) => String(v ?? '').trim() === '');
+ 
+const isPublished = (row) =>
+  /^(true|1|yes|y|○|はい)$/i.test(String(row.published ?? '').trim());
+ 
 function validate(sheet, rows, schema) {
   const ok = [];
   rows.forEach((row, i) => {
     const lineNo = i + 3; // 1行目=列名, 2行目=説明
+ 
+    // 空行と下書き行は検証しない。
+    // 書きかけの行がサイト全体の更新を止めてしまうのは筋が悪い。
+    if (isBlankRow(row) || !isPublished(row)) return;
+ 
     const r = schema.safeParse(row);
     if (!r.success) {
       for (const issue of r.error.issues) {
@@ -43,13 +59,13 @@ function validate(sheet, rows, schema) {
   });
   return ok;
 }
-
+ 
 /** LOCAL_ROWS が指定されていれば、取得の代わりにそのJSON（シート名→二次元配列）を使う。
  *  共有設定を変える前でも開発できるようにするための逃げ道。 */
 const LOCAL = process.env.LOCAL_ROWS
   ? JSON.parse(readFileSync(resolve(ROOT, process.env.LOCAL_ROWS), 'utf8'))
   : null;
-
+ 
 async function getSheet(name) {
   if (LOCAL) return toObjects(LOCAL[name] ?? []);
   if (!SHEET_ID) throw new Error('SHEET_ID が設定されていません');
@@ -62,20 +78,42 @@ async function getSheet(name) {
       `「リンクを知っている全員が閲覧可」にしてください。`
     );
   }
-  return toObjects(parseCsv(text));
+  const rows = toObjects(parseCsv(text));
+  return rows;
 }
-
+ 
+/** 列名が期待どおりに取れているかを先に見る。
+ *  ここで落としておかないと、全行が「値が空」で落ちて原因が分かりにくくなる。 */
+function assertColumns(sheet, rows, expected) {
+  if (!rows.length) return;
+  const got = Object.keys(rows[0]);
+  const missing = expected.filter((c) => !got.includes(c));
+  if (missing.length) {
+    throw new Error(
+      `${sheet} シートの列が読めません（見つからない列: ${missing.join(', ')}）。\n` +
+      `  いま読めた列: ${got.join(', ')}\n` +
+      `  1行目の列名が書き換わっていないか確認してください。`
+    );
+  }
+}
+ 
 function splitRecommends(r) {
   return [r.recommend_1, r.recommend_2, r.recommend_3, r.recommend_4, r.recommend_5, r.recommend_6]
     .map((s) => (s ?? '').trim())
     .filter(Boolean);
 }
-
+ 
 async function main() {
   const [issuesRaw, exRaw, readRaw, notesRaw, newsRaw] = await Promise.all(
     SHEETS.map((s) => getSheet(s))
   );
-
+ 
+  assertColumns('issues', issuesRaw, ['year_month', 'title', 'feature_slug', 'published']);
+  assertColumns('exhibitions', exRaw, ['slug', 'title', 'start', 'end', 'status', 'published']);
+  assertColumns('reading', readRaw, ['title', 'url', 'date', 'published']);
+  assertColumns('notes', notesRaw, ['issue', 'order', 'author', 'title', 'published']);
+  assertColumns('news', newsRaw, ['date', 'title', 'published']);
+ 
   const issues = validate('issues', issuesRaw, S.issueRow)
     .filter((r) => r.published)
     .map((r) => ({
@@ -85,7 +123,7 @@ async function main() {
       featureSlug: r.feature_slug || null,
       photos: [r.photo_1, r.photo_2, r.photo_3, r.photo_4].filter(Boolean)
     }));
-
+ 
   const exhibitions = validate('exhibitions', exRaw, S.exhibitionRow)
     .filter((r) => r.published)
     .map((r) => ({
@@ -95,25 +133,25 @@ async function main() {
       cover: r.cover || null, body: r.body,
       worksCount: r.works_count, mapUrl: r.map_url || null
     }));
-
+ 
   const reading = validate('reading', readRaw, S.readingRow)
     .filter((r) => r.published)
     .map((r) => ({
       title: r.title, url: r.url, source: r.source || 'note',
       date: r.date, thumb: r.thumb || null, tag: r.tag
     }));
-
+ 
   const notes = validate('notes', notesRaw, S.noteRow)
     .filter((r) => r.published)
     .map((r) => ({
       issue: r.issue, order: r.order ?? 0, author: r.author,
       title: r.title, date: r.date, url: r.url
     }));
-
+ 
   const news = validate('news', newsRaw, S.newsRow)
     .filter((r) => r.published)
     .map((r) => ({ date: r.date, title: r.title, url: r.url, body: r.body }));
-
+ 
   // ── 相互参照のチェック ──────────────────────────
   const slugs = new Set(exhibitions.map((e) => e.slug));
   for (const i of issues) {
@@ -130,7 +168,7 @@ async function main() {
     problems.push({ sheet: 'exhibitions', line: '-', column: 'slug',
       message: `slug「${d}」が重複しています`, value: d });
   }
-
+ 
   if (problems.length) {
     console.error('\n入力に問題があるため、公開を中止しました。\n');
     for (const p of problems) {
@@ -141,7 +179,7 @@ async function main() {
     writeFileSync(resolve(ROOT, 'data/problems.json'), JSON.stringify(problems, null, 2));
     process.exit(1);
   }
-
+ 
   mkdirSync(resolve(ROOT, 'data'), { recursive: true });
   const out = { fetchedAt: new Date().toISOString(), issues, exhibitions, reading, notes, news };
   writeFileSync(OUT, JSON.stringify(out, null, 2));
@@ -150,5 +188,6 @@ async function main() {
     `reading ${reading.length} / notes ${notes.length} / news ${news.length}`
   );
 }
-
+ 
 main().catch((e) => { console.error('取得に失敗しました:', e.message); process.exit(1); });
+ 
